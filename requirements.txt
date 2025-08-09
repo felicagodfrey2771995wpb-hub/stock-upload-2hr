@@ -13,11 +13,9 @@ numpy>=1.24.0
 
 # API clients and HTTP
 requests>=2.31.0
-httpx>=0.25.0
 
 # Image processing and metadata
 exifread>=3.0.0
-pyexiv2>=2.8.0
 
 # SEO and keyword analysis
 wordcloud>=1.9.2
@@ -26,11 +24,6 @@ nltk>=3.8.1
 
 # File handling and utilities
 python-dotenv>=1.0.0
-pathlib-mate>=1.0.0
 
-# Async support
-asyncio-mqtt>=0.16.0
-aiofiles>=23.2.0
-
-# Database (optional for history tracking)
-sqlite3
+# Plotting
+plotly>=5.15.0
