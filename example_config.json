@@ -1,0 +1,43 @@
+{
+  "platforms": {
+    "shutterstock": {
+      "name": "Shutterstock",
+      "max_keywords": 50,
+      "max_title_length": 60,
+      "max_description_length": 220,
+      "supported_formats": [".jpg", ".jpeg", ".png", ".tif", ".tiff"],
+      "keyword_separator": ";"
+    },
+    "adobe_stock": {
+      "name": "Adobe Stock",
+      "max_keywords": 49,
+      "max_title_length": 60,
+      "max_description_length": 220,
+      "supported_formats": [".jpg", ".jpeg", ".png", ".tif", ".tiff"],
+      "keyword_separator": ";"
+    },
+    "istock": {
+      "name": "iStock",
+      "max_keywords": 50,
+      "max_title_length": 60,
+      "max_description_length": 220,
+      "supported_formats": [".jpg", ".jpeg", ".png", ".tif", ".tiff"],
+      "keyword_separator": ";"
+    },
+    "getty": {
+      "name": "Getty Images",
+      "max_keywords": 50,
+      "max_title_length": 60,
+      "max_description_length": 220,
+      "supported_formats": [".jpg", ".jpeg", ".png", ".tif", ".tiff"],
+      "keyword_separator": ";"
+    }
+  },
+  "ai_config": {
+    "model": "gpt-4o-mini",
+    "temperature": 0.2,
+    "max_tokens": 500,
+    "system_prompt": "",
+    "user_prompt": ""
+  }
+}
