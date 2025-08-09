@@ -158,6 +158,84 @@ class AIGenerator:
             keywords_zh=[s.strip() for s in data.get("keywords_zh", []) if s and str(s).strip()],
         )
 
+
+class MockAIGenerator:
+    def __init__(self) -> None:
+        pass
+
+    def _slug_to_title(self, stem: str) -> str:
+        cleaned = re.sub(r"[_\-]+", " ", stem).strip()
+        cleaned = re.sub(r"\s+", " ", cleaned)
+        title = cleaned.title()[:60]
+        return title or "Untitled"
+
+    def _english_keywords(self, stem: str, max_kw: int) -> List[str]:
+        raw = re.split(r"[^a-zA-Z]+", stem.lower())
+        tokens = [t for t in raw if len(t) > 1]
+        # dedupe preserving order
+        seen = set()
+        kws: List[str] = []
+        for t in tokens:
+            if t in seen:
+                continue
+            seen.add(t)
+            kws.append(t)
+        return kws[:max_kw]
+
+    def _to_chinese(self, kws_en: List[str]) -> List[str]:
+        mapping = {
+            "sunset": "日落",
+            "sunrise": "日出",
+            "mountain": "山",
+            "mountains": "群山",
+            "forest": "森林",
+            "tree": "树",
+            "trees": "树木",
+            "city": "城市",
+            "night": "夜晚",
+            "street": "街道",
+            "sky": "天空",
+            "road": "道路",
+            "river": "河流",
+            "sea": "大海",
+            "ocean": "海洋",
+            "beach": "海滩",
+            "flower": "花",
+            "cat": "猫",
+            "dog": "狗",
+            "landscape": "风景",
+            "travel": "旅行",
+            "nature": "自然",
+            "red": "红色",
+            "blue": "蓝色",
+            "green": "绿色",
+            "yellow": "黄色",
+            "orange": "橙色",
+            "pink": "粉色",
+            "purple": "紫色",
+            "white": "白色",
+            "black": "黑色",
+            "brown": "棕色",
+            "gray": "灰色",
+        }
+        out: List[str] = []
+        seen = set()
+        for w in kws_en:
+            zh = mapping.get(w.lower(), w)
+            if zh in seen:
+                continue
+            seen.add(zh)
+            out.append(zh)
+        return out
+
+    def for_image(self, img_path: Path, max_kw: int) -> Meta:
+        stem = img_path.stem
+        title = self._slug_to_title(stem)
+        description = f"Stock photo of {title.lower()}."
+        k_en = self._english_keywords(stem, max_kw)
+        k_zh = self._to_chinese(k_en)
+        return Meta(title=title, description=description, keywords_en=k_en, keywords_zh=k_zh)
+
 # ----------------------------- Utilities ------------------------------- #
 
 def _force_json(s: str) -> dict:
@@ -305,6 +383,7 @@ def process_folder(
     model: str,
     temperature: float,
     debug: bool,
+    mock: bool = False,
 ) -> None:
     if debug:
         debug_info(model)
@@ -314,7 +393,7 @@ def process_folder(
         print("No images found.")
         return
 
-    ai = AIGenerator(model=model, temperature=temperature)
+    ai = MockAIGenerator() if mock else AIGenerator(model=model, temperature=temperature)
     rows: List[dict] = []
 
     for p in tqdm(images, desc="Processing", unit="img"):
@@ -357,6 +436,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     ap.add_argument("--temperature", type=float, default=0.2, help="Sampling temperature (default 0.2)")
     ap.add_argument("--debug", action="store_true", help="Print environment & model connectivity diagnostics")
     ap.add_argument("--selftest", action="store_true", help="Run built-in tests and exit")
+    ap.add_argument("--mock", action="store_true", help="Use MockAIGenerator to derive metadata from filenames")
     return ap.parse_args(argv)
 
 
@@ -389,6 +469,7 @@ def main(argv: List[str]) -> int:
             model=str(args.model),
             temperature=float(args.temperature),
             debug=bool(args.debug),
+            mock=bool(getattr(args, "mock", False)),
         )
     except KeyboardInterrupt:
         print("Interrupted.")
